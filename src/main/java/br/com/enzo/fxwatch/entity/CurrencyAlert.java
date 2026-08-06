@@ -15,7 +15,6 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "currency_alert")
-
 public class CurrencyAlert {
 
     @Id
@@ -29,13 +28,13 @@ public class CurrencyAlert {
     @Column(nullable = false)
     private Boolean enabled;
 
-    @Column(nullable = false,precision = 19, scale = 4)
+    @Column(precision = 19, scale = 4)
     private BigDecimal lowestPrice;
 
-    @Column(nullable = false,precision = 19, scale = 4)
+    @Column(precision = 19, scale = 4)
     private BigDecimal highestPrice;
 
-    @Column(nullable = false,precision = 19, scale = 4)
+    @Column(precision = 19, scale = 4)
     private BigDecimal lastPrice;
 
     @Column(nullable = false)
@@ -47,4 +46,5 @@ public class CurrencyAlert {
 
     @OneToMany(mappedBy = "currencyAlert", fetch = FetchType.LAZY)
     private List<ExchangeHistory> history;
+
 }

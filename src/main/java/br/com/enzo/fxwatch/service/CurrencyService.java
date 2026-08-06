@@ -2,6 +2,7 @@ package br.com.enzo.fxwatch.service;
 
 import br.com.enzo.fxwatch.entity.CurrencyAlert;
 import br.com.enzo.fxwatch.entity.ExchangeHistory;
+import br.com.enzo.fxwatch.enums.CurrencyCode;
 import br.com.enzo.fxwatch.integration.currency.CurrencyProvider;
 import br.com.enzo.fxwatch.repository.CurrencyAlertRepository;
 import br.com.enzo.fxwatch.repository.ExchangeHistoryRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +31,15 @@ public class CurrencyService {
         alert.setLastPrice(currentPrice);
         alert.setLastCheck(LocalDateTime.now());
 
-        if (currentPrice.compareTo(alert.getLowestPrice()) < 0) {
+        if (alert.getLowestPrice() == null ||
+                currentPrice.compareTo(alert.getLowestPrice()) < 0) {
+
             alert.setLowestPrice(currentPrice);
         }
 
-        if (currentPrice.compareTo(alert.getHighestPrice()) > 0) {
+        if (alert.getHighestPrice() == null ||
+                currentPrice.compareTo(alert.getHighestPrice()) > 0) {
+
             alert.setHighestPrice(currentPrice);
         }
 
@@ -48,4 +54,34 @@ public class CurrencyService {
 
         exchangeHistoryRepository.save(history);
     }
+
+    public CurrencyAlert createAlert(CurrencyCode currencyCode) {
+
+        CurrencyAlert alert = CurrencyAlert.builder()
+                .currencyCode(currencyCode)
+                .enabled(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        return currencyAlertRepository.save(alert);
+    }
+
+    public List<CurrencyAlert> findAll() {
+        return currencyAlertRepository.findAll();
+    }
+
+    public CurrencyAlert findById(Long id) {
+        return currencyAlertRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Alerta não encontrado."));
+    }
+    public void checkAllAlerts() {
+
+        currencyAlertRepository.findAll()
+                .stream()
+                .filter(CurrencyAlert::getEnabled)
+                .forEach(this::checkAlert);
+
+    }
+
 }
